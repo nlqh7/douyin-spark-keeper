@@ -35,13 +35,23 @@ h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.3px; }
 .nav-item.active { background: #d7e1eb; color: var(--text); font-weight: 600; }
 .sidebar-footer { display: flex; align-items: center; gap: 7px; margin-top: auto; padding: 10px; color: var(--muted); font-size: 10px; }
 .connection-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--success); }
-.main { min-width: 0; min-height: 0; overflow: auto; padding: 24px 28px 16px; }
+.main { min-width: 0; min-height: 0; overflow: hidden; padding: 24px 28px 16px; }
 .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; }
 .breadcrumb { margin: 0 0 5px; color: var(--muted); font-size: 10px; }
 .topbar h2 { margin: 0; font-size: 20px; font-weight: 650; letter-spacing: -.4px; }
 .status-pill { padding: 5px 10px; border: 1px solid var(--border); border-radius: 16px; background: var(--surface); color: var(--muted); font-size: 10px; }
 .status-pill.ready { color: var(--success); }
 .view { max-width: 1120px; margin: 0 auto; }
+.account-strip { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 9px; background: #f7fafc; }
+.account-strip > div { min-width: 0; }
+.account-label { margin-right: 8px; color: var(--muted); font-size: 10px; }
+.account-strip strong { font-size: 11px; font-weight: 600; }
+.account-strip #account-name { display: inline-block; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
+.scan-summary { flex-shrink: 0; }
+.gray-details { margin: 0 2px 14px; color: var(--muted); font-size: 10px; }
+.gray-details summary { min-height: 24px; cursor: pointer; }
+.gray-names { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 2px; }
+.gray-names span { padding: 4px 7px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
 .overview-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }
 .card { min-width: 0; padding: 20px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
 .card-heading { display: flex; align-items: flex-start; justify-content: space-between; }
@@ -92,7 +102,7 @@ h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.3px; }
 .sticker-current img { width: 30px; height: 30px; object-fit: contain; }
 .sticker-current-name { flex: 1; font-size: 11px; }
 .chevron { width: 7px; height: 7px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg) translateY(-2px); }
-.sticker-options { position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; max-height: 280px; overflow-y: auto; padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: 0 12px 32px #26334220; }
+.sticker-options { position: absolute; z-index: 20; top: calc(100% + 6px); left: 0; right: 0; display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; padding: 8px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); box-shadow: 0 12px 32px #26334220; }
 .sticker-options button { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; min-width: 0; min-height: 62px; padding: 5px 2px; border: 1px solid transparent; border-radius: 7px; background: transparent; color: var(--muted); font-size: 9px; }
 .sticker-options button:hover { background: var(--surface-soft); color: var(--text); }
 .sticker-options button.selected { border-color: #e9a183; background: #fff5ef; color: var(--text); }

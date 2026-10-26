@@ -8,6 +8,9 @@ const elements = {
   nextRun: document.querySelector('#next-run'),
   scheduleTime: document.querySelector('#schedule-time'),
   scheduleSummary: document.querySelector('#schedule-summary'),
+  accountName: document.querySelector('#account-name'),
+  grayCount: document.querySelector('#gray-count'),
+  grayNames: document.querySelector('#gray-names'),
   dialog: document.querySelector('#confirm-dialog'),
   confirmDescription: document.querySelector('#confirm-description'),
   cancelWatch: document.querySelector('#cancel-watch'),
@@ -69,6 +72,22 @@ function updateNextRun() {
   const target = new Date(now);
   target.setHours(hour, minute, 0, 0);
   elements.nextRun.textContent = now < target ? '今天' : '明天';
+}
+
+function renderAccount(state) {
+  elements.accountName.textContent = state.account?.name || '未登录';
+  elements.grayCount.textContent = state.scan?.count ?? '—';
+  elements.grayNames.replaceChildren();
+  const targets = state.scan?.targets || [];
+  if (!targets.length) {
+    elements.grayNames.textContent = state.scan?.count === 0 ? '没有待续火花' : '还没有扫描记录';
+    return;
+  }
+  for (const name of targets) {
+    const item = document.createElement('span');
+    item.textContent = name;
+    elements.grayNames.append(item);
+  }
 }
 
 function selectedMessageType() {
@@ -133,6 +152,7 @@ function renderConfig() {
 async function refresh(syncSettings = false) {
   try {
     const state = await window.spark.status();
+    renderAccount(state);
     loggedIn = state.loggedIn;
     elements.loginStatus.textContent = state.config.browser_mode === 'webbridge' ? 'WebBridge 已连接' : (state.config.browser_mode === 'default' ? '默认 Chrome' : (loggedIn ? '已登录' : '需要登录'));
     elements.loginStatus.classList.toggle('ready', loggedIn);

@@ -71,12 +71,15 @@ app.on('will-quit', () => {
 ipcMain.handle('status', async () => {
   const result = await runner.run('status');
   const config = JSON.parse((await runner.run('config')).output);
+  const accountStatus = JSON.parse((await runner.run('accountStatus')).output);
   return {
     raw: result.output,
     loggedIn: ['webbridge', 'default'].includes(config.browser_mode) || result.output.includes('独立登录状态: 已保存'),
     enabled: result.output.includes('自动发送: 已启用'),
     watching: runner.watching,
     config,
+    account: accountStatus.account,
+    scan: accountStatus.scan,
   };
 });
 ipcMain.handle('save-config', (_event, settings) => runner.saveConfig(settings));

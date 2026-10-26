@@ -4,6 +4,7 @@ const path = require('node:path');
 const COMMANDS = Object.freeze({
   status: ['status'],
   config: ['config'],
+  accountStatus: ['account-status'],
   login: ['login'],
   dryRun: ['dry-run'],
   pause: ['pause'],
