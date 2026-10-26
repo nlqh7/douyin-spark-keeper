@@ -21,3 +21,4 @@ desktop/node_modules/
 desktop/dist/
 build/
 tmp_spark_portable/
+tmp_spark_download/
