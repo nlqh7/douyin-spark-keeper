@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 from datetime import datetime
 from pathlib import Path
 
@@ -9,7 +10,7 @@ from app.control import message_for_control
 from app.history import History
 from app.main import _configure_logging
 from app.privacy import target_alias
-from app.webbridge import deactivate_page, discover_gray_streaks, ensure_chat, open_target, send_sticker, send_text
+from app.webbridge import WebBridgeError, deactivate_page, discover_gray_streaks, ensure_chat, open_target, send_sticker, send_text
 
 
 TASK_ID = "guarded-gray-streak"
@@ -25,7 +26,15 @@ def _run_webbridge(control: dict, log_dir: Path, *, dry_run: bool) -> int:
     results = []
 
     ensure_chat()
-    friends = discover_gray_streaks()
+    for attempt in range(3):
+        try:
+            friends = discover_gray_streaks()
+            break
+        except WebBridgeError as exc:
+            if "未识别到私信会话" not in str(exc) or attempt == 2:
+                raise
+            time.sleep(1)
+            ensure_chat()
     scan_status_path = log_dir.parent / "data" / "scan-status.json"
     scan_status_path.parent.mkdir(parents=True, exist_ok=True)
     scan_status_path.write_text(json.dumps({"count": len(friends), "targets": friends}, ensure_ascii=False, indent=2), encoding="utf-8")

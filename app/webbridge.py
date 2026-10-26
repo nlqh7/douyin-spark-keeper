@@ -61,7 +61,7 @@ def discover_gray_streaks() -> list[str]:
         """(async () => {
           const list = [...document.querySelectorAll('[class*="conversationConversationListwrapper"]')].find(e => e.getBoundingClientRect().height > 0);
           if (!list) return {conversations: 0, names: []};
-          const conversations = list.querySelectorAll('[data-e2e="conversation-item"]').length;
+          const conversations = document.querySelectorAll('[data-e2e="conversation-item"]').length;
           const names = new Set();
           list.scrollTop = 0;
           const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -69,7 +69,7 @@ def discover_gray_streaks() -> list[str]:
           for (let i = 0; i < 100; i++) {
             list.querySelectorAll('[data-e2e="conversation-item"]:has([class*="commonStreakstreakContainer"] [class*="commonStreakicon"][src*="/gray_"])').forEach(row => {
               const title = row.querySelector('[class*="conversationConversationItemtitle"]');
-              const name = title && (title.innerText || title.textContent || '').split('\n')[0].trim();
+              const name = title && (title.innerText || title.textContent || '').split('\\n')[0].trim();
               if (name) names.add(name);
             });
             if (list.scrollTop + list.clientHeight >= list.scrollHeight - 2) break;
@@ -92,7 +92,9 @@ def trusted_click(rect: dict) -> None:
 
 def open_target(name: str) -> None:
     encoded = json.dumps(name, ensure_ascii=False)
-    rect = evaluate(
+    rect = None
+    for attempt in range(3):
+        rect = evaluate(
         f"""(async () => {{
           const expected = {encoded};
           const list = [...document.querySelectorAll('[class*="conversationConversationListwrapper"]')].find(e => e.getBoundingClientRect().height > 0);
@@ -104,7 +106,7 @@ def open_target(name: str) -> None:
           for (let i = 0; i < 100; i++) {{
             for (const row of list.querySelectorAll('[data-e2e="conversation-item"]')) {{
               const title = row.querySelector('[class*="conversationConversationItemtitle"]');
-              if (title && (title.innerText || title.textContent || '').split('\n')[0].trim() === expected) {{
+              if (title && (title.innerText || title.textContent || '').split('\\n')[0].trim().includes(expected)) {{
                 matches += 1;
                 list.scrollTop = Math.max(0, row.offsetTop - list.clientHeight / 2);
                 await wait(400);
@@ -118,7 +120,10 @@ def open_target(name: str) -> None:
           }}
           return {{reason: 'not-visible', matches}};
         }})()"""
-    )
+        )
+        if rect and "x" in rect:
+            break
+        time.sleep(0.5)
     if not rect or "x" not in rect:
         raise WebBridgeError(f"无法定位目标会话（名称匹配数: {rect.get('matches', 0) if rect else 0}）")
     before_title = evaluate("(() => (document.querySelector('[class*=\"RightPanelHeadertitle\"]')?.textContent || '').trim())()")
