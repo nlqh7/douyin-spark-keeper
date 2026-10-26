@@ -35,6 +35,7 @@ jobs:
       - name: Build icon and backend
         run: |
           python scripts/build_assets.py
+          python scripts/download_stickers.py
           python -m PyInstaller --noconfirm --onefile --noconsole --name manage --collect-all playwright --collect-all tzdata --distpath build --workpath build/work --specpath build/spec manage.py
       - name: Build portable application
         working-directory: desktop

@@ -24,6 +24,10 @@ const elements = {
   stickerInput: document.querySelector('#sticker-input'),
   textField: document.querySelector('#text-field'),
   stickerField: document.querySelector('#sticker-field'),
+  stickerCurrent: document.querySelector('#sticker-current'),
+  stickerCurrentImage: document.querySelector('#sticker-current-image'),
+  stickerCurrentName: document.querySelector('#sticker-current-name'),
+  stickerOptions: document.querySelector('#sticker-options'),
   saveSettings: document.querySelector('#save-settings'),
   settingsStatus: document.querySelector('#settings-status'),
   toast: document.querySelector('#toast'),
@@ -35,6 +39,7 @@ let loggedIn = false;
 let settingsLoaded = false;
 let toastTimer;
 let currentConfig = { time: '23:00', message_type: 'text', content: '火', browser_mode: 'isolated' };
+const STICKERS = ['续火花', '晚上好', '比心', '早上好', '早点睡', '在干嘛', '开心', '嗨', '爱心', '绝了', '笑死', '已阅'];
 
 function friendlyError(error) {
   const message = error?.message || '操作失败';
@@ -77,6 +82,40 @@ function updateMessageFields() {
   elements.messageInput.required = isText;
 }
 
+function updateStickerCurrent() {
+  const name = elements.stickerInput.value;
+  elements.stickerCurrentImage.src = `../../assets/stickers/${name}.png`;
+  elements.stickerCurrentName.textContent = name;
+  elements.stickerOptions.querySelectorAll('button').forEach((button) => {
+    const selected = button.dataset.name === name;
+    button.classList.toggle('selected', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  });
+}
+
+function renderStickerOptions() {
+  for (const name of STICKERS) {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.dataset.name = name;
+    button.setAttribute('aria-pressed', 'false');
+    const image = document.createElement('img');
+    image.src = `../../assets/stickers/${name}.png`;
+    image.alt = '';
+    const label = document.createElement('span');
+    label.textContent = name;
+    button.append(image, label);
+    button.addEventListener('click', () => {
+      elements.stickerInput.value = name;
+      elements.stickerOptions.hidden = true;
+      elements.stickerCurrent.setAttribute('aria-expanded', 'false');
+      updateStickerCurrent();
+    });
+    elements.stickerOptions.append(button);
+  }
+  updateStickerCurrent();
+}
+
 function renderConfig() {
   elements.scheduleTime.textContent = currentConfig.time;
   const kind = currentConfig.message_type === 'sticker' ? '原生表情' : '「' + currentConfig.content + '」';
@@ -87,6 +126,7 @@ function renderConfig() {
   if (currentConfig.message_type === 'sticker') elements.stickerInput.value = currentConfig.content;
   else elements.messageInput.value = currentConfig.content;
   updateMessageFields();
+  updateStickerCurrent();
   updateNextRun();
 }
 
@@ -156,6 +196,16 @@ document.querySelectorAll('[data-content]').forEach((button) => button.addEventL
   elements.messageInput.value = button.dataset.content;
   elements.messageInput.focus();
 }));
+elements.stickerCurrent.addEventListener('click', () => {
+  elements.stickerOptions.hidden = !elements.stickerOptions.hidden;
+  elements.stickerCurrent.setAttribute('aria-expanded', String(!elements.stickerOptions.hidden));
+});
+document.addEventListener('click', (event) => {
+  if (!event.target.closest('.sticker-picker')) {
+    elements.stickerOptions.hidden = true;
+    elements.stickerCurrent.setAttribute('aria-expanded', 'false');
+  }
+});
 
 elements.form.addEventListener('submit', async (event) => {
   event.preventDefault();
@@ -205,4 +255,5 @@ window.spark.onLog((message) => {
   elements.logs.textContent += `${elements.logs.textContent ? '\n' : ''}${message.trimEnd()}`;
 });
 
+renderStickerOptions();
 refresh(true);

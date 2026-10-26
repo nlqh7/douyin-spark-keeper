@@ -146,6 +146,13 @@ if (process.argv.includes('--smoke-test')) {
       const scanFeedback = webbridgeMode ? 'WebBridge 由独立真实页面测试覆盖' : document.querySelector('#toast').textContent;
       document.querySelector('#settings-form').requestSubmit();
       for (let i = 0; i < 300 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
+      document.querySelector('input[name="message-type"][value="sticker"]').click();
+      document.querySelector('#sticker-current').click();
+      const stickerCount = document.querySelectorAll('#sticker-options button').length;
+      document.querySelector('#sticker-options button[data-name="续火花"]').click();
+      await new Promise(resolve => setTimeout(resolve, 300));
+      const selectedSticker = document.querySelector('#sticker-current-name').textContent;
+      const stickerImageLoaded = document.querySelector('#sticker-current-image').naturalWidth > 0;
       document.querySelector('[data-view="logs"]').click();
       await new Promise(resolve => setTimeout(resolve, 150));
       const logsVisible = !document.querySelector('#logs-view').hidden && document.querySelector('#page-title').textContent === '运行记录';
@@ -158,12 +165,15 @@ if (process.argv.includes('--smoke-test')) {
         settingsSaved: document.querySelector('#settings-status').textContent,
         scheduleTime: document.querySelector('#schedule-time').textContent,
         logsVisible,
+        stickerCount,
+        selectedSticker,
+        stickerImageLoaded,
       };
     })()`);
     console.log(JSON.stringify(interaction));
     await fs.mkdir(path.join(root, 'artifacts'), { recursive: true });
     await window.webContents.capturePage().then((image) => fs.writeFile(path.join(root, 'artifacts', 'desktop-smoke.png'), image.toPNG()));
-    const failed = result.scrollHeight > result.clientHeight || result.node !== 'undefined' || result.api !== 'function' || (result.loginRequired && !result.scanDisabled) || !interaction.enabledAfterLogin || !(interaction.scanFeedback.includes('尚未完成独立浏览器登录') || interaction.scanFeedback.includes('WebBridge')) || !interaction.feedback.includes('发送设置已保存') || interaction.settingsSaved !== '已保存' || !interaction.logsVisible;
+    const failed = result.scrollHeight > result.clientHeight || result.node !== 'undefined' || result.api !== 'function' || (result.loginRequired && !result.scanDisabled) || !interaction.enabledAfterLogin || !(interaction.scanFeedback.includes('尚未完成独立浏览器登录') || interaction.scanFeedback.includes('WebBridge')) || !interaction.feedback.includes('发送设置已保存') || interaction.settingsSaved !== '已保存' || !interaction.logsVisible || interaction.stickerCount !== 12 || interaction.selectedSticker !== '续火花' || !interaction.stickerImageLoaded;
     await fs.writeFile(path.join(root, 'artifacts', 'smoke-result.json'), JSON.stringify({ result, interaction, failed }));
     app.exit(failed ? 1 : 0);
   });

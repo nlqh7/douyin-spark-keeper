@@ -36,5 +36,5 @@ def test_invalid_time_is_rejected(time_value: str) -> None:
 
 
 def test_unknown_sticker_is_rejected() -> None:
-    with pytest.raises(ValueError, match="暂只支持"):
+    with pytest.raises(ValueError, match="不支持"):
         normalize_control({"message_type": "sticker", "content": "任意图片"})

@@ -13,7 +13,7 @@ DEFAULT_CONTROL = {
     "content": "火",
     "browser_mode": "isolated",
 }
-STICKER_NAMES = {"晚上好", "比心"}
+STICKER_NAMES = {"续火花", "晚上好", "比心", "早上好", "早点睡", "在干嘛", "开心", "嗨", "爱心", "绝了", "笑死", "已阅"}
 
 
 def normalize_control(value: object) -> dict:
@@ -31,7 +31,7 @@ def normalize_control(value: object) -> dict:
         raise ValueError("发送内容必须为 1-20 个字符的单行文本")
     control["content"] = content.strip()
     if message_type == "sticker" and control["content"] not in STICKER_NAMES:
-        raise ValueError("暂只支持抖音原生表情：晚上好、比心")
+        raise ValueError("不支持这个原生表情，请从本地表情面板中选择")
     if control.get("browser_mode") not in {"webbridge", "isolated", "default"}:
         raise ValueError("浏览器模式必须是 webbridge、isolated 或 default")
     return control

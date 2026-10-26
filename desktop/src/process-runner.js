@@ -24,7 +24,7 @@ function configArguments(settings) {
   const content = typeof settings.content === 'string' ? settings.content.trim() : '';
   if (!['text', 'sticker'].includes(messageType)) throw new Error('消息类型无效');
   if (!content || content.length > 20 || /[\r\n]/.test(content)) throw new Error('发送内容需为 1-20 个字符的单行文本');
-  if (messageType === 'sticker' && !['晚上好', '比心'].includes(content)) throw new Error('不支持这个原生表情');
+  if (messageType === 'sticker' && !['续火花', '晚上好', '比心', '早上好', '早点睡', '在干嘛', '开心', '嗨', '爱心', '绝了', '笑死', '已阅'].includes(content)) throw new Error('不支持这个原生表情');
   const browserMode = settings.browserMode || 'isolated';
   if (!['webbridge', 'isolated', 'default'].includes(browserMode)) throw new Error('浏览器模式无效');
   return ['configure', '--time', time, '--message-type', messageType, '--content', content, '--browser-mode', browserMode];

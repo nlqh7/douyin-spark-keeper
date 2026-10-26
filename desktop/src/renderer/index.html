@@ -107,11 +107,15 @@
                 </div>
               </div>
               <div id="sticker-field" class="field" hidden>
-                <label for="sticker-input">原生表情</label>
-                <select id="sticker-input" name="sticker">
-                  <option value="晚上好">晚上好</option>
-                  <option value="比心">比心</option>
-                </select>
+                <label id="sticker-label">原生表情</label>
+                <input id="sticker-input" type="hidden" value="晚上好">
+                <div class="sticker-picker">
+                  <button id="sticker-current" class="sticker-current" type="button" aria-labelledby="sticker-label sticker-current" aria-expanded="false">
+                    <img id="sticker-current-image" src="../../assets/stickers/晚上好.png" alt="">
+                    <span id="sticker-current-name">晚上好</span><span class="chevron" aria-hidden="true"></span>
+                  </button>
+                  <div id="sticker-options" class="sticker-options" role="group" aria-label="选择原生表情" hidden></div>
+                </div>
               </div>
             </div>
             <div class="settings-footer">
