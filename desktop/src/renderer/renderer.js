@@ -32,6 +32,7 @@ const elements = {
 
 let busy = false;
 let loggedIn = false;
+let settingsLoaded = false;
 let toastTimer;
 let currentConfig = { time: '23:00', message_type: 'text', content: '火', browser_mode: 'isolated' };
 
@@ -49,10 +50,10 @@ function notify(message) {
 }
 
 function updateControls() {
-  elements.scan.disabled = busy || !loggedIn;
-  elements.login.disabled = busy;
-  elements.toggle.disabled = busy || !loggedIn;
-  elements.saveSettings.disabled = busy;
+  elements.scan.disabled = busy || !loggedIn || !settingsLoaded;
+  elements.login.disabled = busy || !settingsLoaded;
+  elements.toggle.disabled = busy || !loggedIn || !settingsLoaded;
+  elements.saveSettings.disabled = busy || !settingsLoaded;
   elements.login.className = `button ${loggedIn ? 'secondary' : 'primary'}`;
   elements.scan.className = `button ${loggedIn ? 'primary' : 'secondary'}`;
 }
@@ -101,6 +102,7 @@ async function refresh(syncSettings = false) {
     if (syncSettings) {
       currentConfig = state.config;
       renderConfig();
+      settingsLoaded = true;
     }
   } catch (error) {
     elements.loginStatus.textContent = '状态异常';

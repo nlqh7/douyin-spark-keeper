@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+const { app, BrowserWindow, ipcMain, Menu, Tray } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
 const { ProcessRunner } = require('./process-runner');
@@ -8,6 +8,13 @@ const smokeTest = process.argv.includes('--smoke-test');
 app.setPath('userData', path.join(root, 'data', smokeTest ? 'electron-smoke' : 'electron'));
 const runner = new ProcessRunner(root, undefined, { managePath: app.isPackaged ? path.join(process.resourcesPath, 'manage.exe') : null });
 let window;
+let tray;
+
+function showWindow() {
+  if (!window) createWindow();
+  window.show();
+  window.focus();
+}
 
 if (!smokeTest && !app.requestSingleInstanceLock()) process.exit(0);
 app.on('second-instance', () => {
@@ -29,6 +36,7 @@ function createWindow() {
     minHeight: 760,
     backgroundColor: '#f4f4f2',
     title: '火花',
+    icon: path.join(__dirname, '..', 'assets', 'icon.ico'),
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
@@ -38,8 +46,27 @@ function createWindow() {
     },
   });
   window.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  window.on('minimize', (event) => {
+    event.preventDefault();
+    window.hide();
+  });
   window.on('closed', () => { window = null; });
 }
+
+function createTray() {
+  tray = new Tray(path.join(__dirname, '..', 'assets', 'icon.ico'));
+  tray.setToolTip('火花');
+  tray.on('click', showWindow);
+  tray.setContextMenu(Menu.buildFromTemplate([
+    { label: '打开火花', click: showWindow },
+    { type: 'separator' },
+    { label: '退出', click: () => app.quit() },
+  ]));
+}
+
+app.on('will-quit', () => {
+  if (tray) tray.destroy();
+});
 
 ipcMain.handle('status', async () => {
   const result = await runner.run('status');
@@ -76,6 +103,7 @@ ipcMain.handle('logs', async () => {
 
 app.whenReady().then(() => {
   createWindow();
+  if (!smokeTest) createTray();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -108,15 +136,16 @@ if (process.argv.includes('--smoke-test')) {
     })`);
     console.log(JSON.stringify(result));
     const interaction = await window.webContents.executeJavaScript(`(async () => {
+      for (let i = 0; i < 300 && !settingsLoaded; i++) await new Promise(resolve => setTimeout(resolve, 100));
       loggedIn = true;
       updateControls();
       const enabledAfterLogin = !document.querySelector('#scan').disabled;
       const webbridgeMode = currentConfig.browser_mode === 'webbridge';
       if (!webbridgeMode) document.querySelector('#scan').click();
-      for (let i = 0; i < 100 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
+      for (let i = 0; i < 300 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
       const scanFeedback = webbridgeMode ? 'WebBridge 由独立真实页面测试覆盖' : document.querySelector('#toast').textContent;
       document.querySelector('#settings-form').requestSubmit();
-      for (let i = 0; i < 100 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
+      for (let i = 0; i < 300 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
       document.querySelector('[data-view="logs"]').click();
       await new Promise(resolve => setTimeout(resolve, 150));
       const logsVisible = !document.querySelector('#logs-view').hidden && document.querySelector('#page-title').textContent === '运行记录';
