@@ -3,7 +3,7 @@ const path = require('node:path');
 const fs = require('node:fs/promises');
 const { ProcessRunner } = require('./process-runner');
 
-const root = app.isPackaged ? path.dirname(process.execPath) : path.resolve(__dirname, '..', '..');
+const root = app.isPackaged ? (process.env.PORTABLE_EXECUTABLE_DIR || path.dirname(process.execPath)) : path.resolve(__dirname, '..', '..');
 const smokeTest = process.argv.includes('--smoke-test');
 app.setPath('userData', path.join(root, 'data', smokeTest ? 'electron-smoke' : 'electron'));
 const runner = new ProcessRunner(root, undefined, { managePath: app.isPackaged ? path.join(process.resourcesPath, 'manage.exe') : null });
@@ -113,10 +113,10 @@ if (process.argv.includes('--smoke-test')) {
       const enabledAfterLogin = !document.querySelector('#scan').disabled;
       const webbridgeMode = currentConfig.browser_mode === 'webbridge';
       if (!webbridgeMode) document.querySelector('#scan').click();
-      await new Promise(resolve => setTimeout(resolve, 1200));
+      for (let i = 0; i < 100 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
       const scanFeedback = webbridgeMode ? 'WebBridge 由独立真实页面测试覆盖' : document.querySelector('#toast').textContent;
       document.querySelector('#settings-form').requestSubmit();
-      await new Promise(resolve => setTimeout(resolve, 700));
+      for (let i = 0; i < 100 && busy; i++) await new Promise(resolve => setTimeout(resolve, 100));
       document.querySelector('[data-view="logs"]').click();
       await new Promise(resolve => setTimeout(resolve, 150));
       const logsVisible = !document.querySelector('#logs-view').hidden && document.querySelector('#page-title').textContent === '运行记录';
@@ -135,6 +135,7 @@ if (process.argv.includes('--smoke-test')) {
     await fs.mkdir(path.join(root, 'artifacts'), { recursive: true });
     await window.webContents.capturePage().then((image) => fs.writeFile(path.join(root, 'artifacts', 'desktop-smoke.png'), image.toPNG()));
     const failed = result.scrollHeight > result.clientHeight || result.node !== 'undefined' || result.api !== 'function' || (result.loginRequired && !result.scanDisabled) || !interaction.enabledAfterLogin || !(interaction.scanFeedback.includes('尚未完成独立浏览器登录') || interaction.scanFeedback.includes('WebBridge')) || !interaction.feedback.includes('发送设置已保存') || interaction.settingsSaved !== '已保存' || !interaction.logsVisible;
+    await fs.writeFile(path.join(root, 'artifacts', 'smoke-result.json'), JSON.stringify({ result, interaction, failed }));
     app.exit(failed ? 1 : 0);
   });
 }
