@@ -1,0 +1,26 @@
+{
+  "name": "spark-keeper-desktop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "简洁的抖音灰色火花续火桌面工具",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test tests/*.test.js",
+    "smoke": "electron . --smoke-test",
+    "dist": "electron-builder --win portable"
+  },
+  "build": {
+    "appId": "local.sparkkeeper.desktop",
+    "productName": "火花管家",
+    "files": ["src/**/*", "assets/**/*", "package.json"],
+    "extraResources": [{"from": "../build/manage.exe", "to": "manage.exe"}],
+    "win": {"target": "portable", "icon": "assets/icon.ico"},
+    "portable": {"artifactName": "SparkKeeper-${version}-win-x64.exe"},
+    "directories": {"output": "dist"}
+  },
+  "devDependencies": {
+    "electron": "^39.2.7",
+    "electron-builder": "^26.0.20"
+  }
+}

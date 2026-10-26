@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'none'">
+  <title>火花管家</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <svg class="brand-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12.8 2.5c.3 3.6-2.1 5.2-3.7 7.1-1.2 1.4-2 2.8-1.7 4.7.4 2.3 2.3 3.8 4.7 3.8 3 0 5.2-2.2 5.2-5.2 0-2.1-1.2-3.8-2.5-5.4.2 2.1-.5 3.5-1.6 4.3.6-4.1-1-6.2-.4-9.3Z"/><path d="M6.7 8.7A8.4 8.4 0 0 0 3.5 15a8.5 8.5 0 0 0 17 0c0-2.5-1.1-4.7-2.8-6.5.5 4.9-2.2 9-6.3 9.8-4.7-.5-7.3-4.4-4.7-9.6Z"/></svg>
+        <h1>火花管家</h1>
+      </div>
+      <nav class="nav" aria-label="主要功能">
+        <button class="nav-item active" type="button" data-view="overview">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M4 11.5 12 4l8 7.5M6.5 10v10h11V10"/></svg>
+          <span>每日续火</span>
+        </button>
+        <button class="nav-item" type="button" data-view="logs">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M6 3h12v18H6zM9 8h6M9 12h6M9 16h4"/></svg>
+          <span>运行记录</span>
+        </button>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="connection-dot" aria-hidden="true"></span>
+        <span id="connection-label">WebBridge</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="breadcrumb">工作台 / <span id="page-section">续火</span></p>
+          <h2 id="page-title">每日续火</h2>
+        </div>
+        <span id="login-status" class="status-pill">检查中</span>
+      </header>
+
+      <section id="overview-view" class="view">
+        <div class="overview-grid">
+          <section class="card schedule" aria-labelledby="overview-title">
+            <div class="card-heading">
+              <div><span class="section-label">本次任务</span><h3 id="overview-title">今日续火</h3></div>
+              <span id="watching-badge" class="running" hidden>监视中</span>
+            </div>
+            <div class="time-display"><strong id="schedule-time">23:00</strong><span id="next-run">今天</span></div>
+            <p id="schedule-summary" class="summary">所有灰色火花，各发一个「火」</p>
+            <div class="actions">
+              <button id="login" class="button primary" type="button">登录抖音</button>
+              <button id="scan" class="button secondary" type="button" disabled>
+                <svg aria-hidden="true" viewBox="0 0 24 24"><circle cx="10.8" cy="10.8" r="6.8"/><path d="m16 16 5 5"/></svg>
+                <span>扫描火花</span>
+              </button>
+            </div>
+            <p id="action-hint" class="hint">扫描只检查，不发送任何消息</p>
+          </section>
+
+          <section class="card auto-card" aria-labelledby="auto-title">
+            <span class="section-label">自动化</span>
+            <div class="auto-content">
+              <div>
+                <h3 id="auto-title">自动续火</h3>
+                <p id="auto-description">保持应用和电脑运行</p>
+              </div>
+              <label class="switch">
+                <input id="auto-toggle" type="checkbox" aria-labelledby="auto-title" aria-describedby="auto-description" disabled>
+                <span class="switch-track" aria-hidden="true"></span>
+              </label>
+            </div>
+            <div class="auto-note">每天执行一次，错过不补发。结果不确定时不会重复发送。</div>
+          </section>
+        </div>
+
+        <section class="card settings" aria-labelledby="settings-title">
+          <div class="card-heading"><div><span class="section-label">偏好</span><h3 id="settings-title">发送设置</h3></div></div>
+          <form id="settings-form">
+            <div class="settings-grid">
+              <div class="field">
+                <label for="time-input">执行时间</label>
+                <input id="time-input" name="time" type="time" value="23:00" required>
+              </div>
+              <div class="field">
+                <label for="browser-mode">浏览器连接</label>
+                <select id="browser-mode" name="browser-mode">
+                  <option value="webbridge">Kimi WebBridge</option>
+                  <option value="default">电脑默认 Chrome</option>
+                  <option value="isolated">独立浏览器</option>
+                </select>
+              </div>
+              <fieldset class="field message-type-field">
+                <legend>发送方式</legend>
+                <div class="segmented">
+                  <label><input type="radio" name="message-type" value="text" checked><span>文字</span></label>
+                  <label><input type="radio" name="message-type" value="sticker"><span>原生表情</span></label>
+                </div>
+              </fieldset>
+              <div id="text-field" class="field">
+                <label for="message-input">发送内容</label>
+                <input id="message-input" name="message" type="text" value="火" maxlength="20" required>
+                <div class="presets" aria-label="快捷内容">
+                  <button type="button" data-content="火">火</button>
+                  <button type="button" data-content="🔥">🔥</button>
+                  <button type="button" data-content="晚安">晚安</button>
+                </div>
+              </div>
+              <div id="sticker-field" class="field" hidden>
+                <label for="sticker-input">原生表情</label>
+                <select id="sticker-input" name="sticker">
+                  <option value="晚上好">晚上好</option>
+                  <option value="比心">比心</option>
+                </select>
+              </div>
+            </div>
+            <div class="settings-footer">
+              <p id="settings-status" class="settings-status" aria-live="polite"></p>
+              <button id="save-settings" class="button save" type="submit">保存设置</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <section id="logs-view" class="view" hidden>
+        <div class="card log-card">
+          <div class="card-heading"><div><span class="section-label">本地记录</span><h3>最近运行日志</h3></div><span class="log-limit">最近 80 行</span></div>
+          <pre id="logs" tabindex="0">还没有运行日志。</pre>
+        </div>
+      </section>
+    </main>
+  </div>
+  <div id="announcement" class="visually-hidden" aria-live="polite"></div>
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <dialog id="confirm-dialog" aria-labelledby="confirm-title">
+    <h2 id="confirm-title">开启自动续火？</h2>
+    <p id="confirm-description">所有灰色火花都会收到设置的内容。请保持应用和电脑运行。</p>
+    <div class="dialog-actions">
+      <button id="cancel-watch" class="button secondary" type="button">取消</button>
+      <button id="confirm-watch" class="button primary" type="button">确认开启</button>
+    </div>
+  </dialog>
+  <script src="renderer.js"></script>
+</body>
+</html>

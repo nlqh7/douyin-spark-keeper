@@ -12,3 +12,12 @@ config/tasks/
 config.json
 storage-state.json
 storage_state/
+browser/
+data/
+logs/
+.pip-cache/
+.npm-cache/
+desktop/node_modules/
+desktop/dist/
+build/
+tmp_spark_portable/
