@@ -1,6 +1,6 @@
 {
   "name": "spark-keeper-desktop",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "description": "简洁的抖音灰色火花续火桌面工具",
   "main": "src/main.js",
