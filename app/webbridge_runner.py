@@ -26,6 +26,9 @@ def _run_webbridge(control: dict, log_dir: Path, *, dry_run: bool) -> int:
 
     ensure_chat()
     friends = discover_gray_streaks()
+    scan_status_path = log_dir.parent / "data" / "scan-status.json"
+    scan_status_path.parent.mkdir(parents=True, exist_ok=True)
+    scan_status_path.write_text(json.dumps({"count": len(friends), "targets": friends}, ensure_ascii=False, indent=2), encoding="utf-8")
     logger.info("WebBridge 识别到 %d 个灰色火花对象", len(friends))
     for index, name in enumerate(friends):
         alias = target_alias(index)

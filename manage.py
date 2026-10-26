@@ -145,6 +145,13 @@ def show_config() -> int:
     return 0
 
 
+def account_status() -> int:
+    from app.account import account_status as read_account_status
+
+    print(json.dumps(read_account_status(), ensure_ascii=False))
+    return 0
+
+
 def configure(args: argparse.Namespace) -> int:
     control = load_control()
     control.update({"time": args.time, "message_type": args.message_type, "content": args.content, "browser_mode": args.browser_mode})
@@ -294,6 +301,7 @@ def parse_args() -> argparse.Namespace:
     subparsers.add_parser("console", help="打开交互式控制终端")
     subparsers.add_parser("status", help="查看安装、登录和定时任务状态")
     subparsers.add_parser("config", help="输出当前本地设置")
+    subparsers.add_parser("account-status", help="输出当前账号和待续火花状态")
     configure_parser = subparsers.add_parser("configure", help="保存时间、文字或原生表情设置")
     configure_parser.add_argument("--time", required=True)
     configure_parser.add_argument("--message-type", choices=("text", "sticker"), required=True)
@@ -319,6 +327,8 @@ def main() -> int:
         return status()
     if args.command == "config":
         return show_config()
+    if args.command == "account-status":
+        return account_status()
     if args.command == "configure":
         return configure(args)
     if args.command == "pause":

@@ -23,7 +23,7 @@ def test_command_uses_local_bridge_and_fixed_session(monkeypatch) -> None:
     assert webbridge.command("list_tabs")["success"] is True
     request = captured[0][0]
     assert request.full_url == "http://127.0.0.1:10086/command"
-    assert json.loads(request.data)["session"] == "spark-keeper"
+    assert json.loads(request.data)["session"] == "spark-keeper-v2"
 
 
 def configure_runner(monkeypatch):

@@ -6,7 +6,7 @@ from urllib.request import Request, urlopen
 
 
 BRIDGE_URL = "http://127.0.0.1:10086/command"
-SESSION = "spark-keeper"
+SESSION = "spark-keeper-v2"
 CHAT_URL = "https://www.douyin.com/chat"
 
 
@@ -61,6 +61,7 @@ def discover_gray_streaks() -> list[str]:
         """(async () => {
           const list = [...document.querySelectorAll('[class*="conversationConversationListwrapper"]')].find(e => e.getBoundingClientRect().height > 0);
           if (!list) return {conversations: 0, names: []};
+          const conversations = list.querySelectorAll('[data-e2e="conversation-item"]').length;
           const names = new Set();
           list.scrollTop = 0;
           const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -68,14 +69,14 @@ def discover_gray_streaks() -> list[str]:
           for (let i = 0; i < 100; i++) {
             list.querySelectorAll('[data-e2e="conversation-item"]:has([class*="commonStreakstreakContainer"] [class*="commonStreakicon"][src*="/gray_"])').forEach(row => {
               const title = row.querySelector('[class*="conversationConversationItemtitle"]');
-              const name = title && (title.innerText || title.textContent || '').trim();
+              const name = title && (title.innerText || title.textContent || '').split('\n')[0].trim();
               if (name) names.add(name);
             });
             if (list.scrollTop + list.clientHeight >= list.scrollHeight - 2) break;
             list.scrollTop = Math.min(list.scrollTop + Math.max(300, list.clientHeight * .8), list.scrollHeight);
             await wait(350);
           }
-          return {conversations: document.querySelectorAll('[data-e2e="conversation-item"]').length, names: [...names]};
+          return {conversations, names: [...names]};
         })()"""
     )
     if not result.get("conversations"):
@@ -103,7 +104,7 @@ def open_target(name: str) -> None:
           for (let i = 0; i < 100; i++) {{
             for (const row of list.querySelectorAll('[data-e2e="conversation-item"]')) {{
               const title = row.querySelector('[class*="conversationConversationItemtitle"]');
-              if (title && (title.innerText || title.textContent || '').trim() === expected) {{
+              if (title && (title.innerText || title.textContent || '').split('\n')[0].trim() === expected) {{
                 matches += 1;
                 list.scrollTop = Math.max(0, row.offsetTop - list.clientHeight / 2);
                 await wait(400);
