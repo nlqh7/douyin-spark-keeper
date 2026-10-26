@@ -11,7 +11,7 @@ DEFAULT_CONTROL = {
     "time": "23:00",
     "message_type": "text",
     "content": "火",
-    "browser_mode": "isolated",
+    "browser_mode": "webbridge",
 }
 STICKER_NAMES = {"续火花", "晚上好", "比心", "早上好", "早点睡", "在干嘛", "开心", "嗨", "爱心", "绝了", "笑死", "已阅"}
 
