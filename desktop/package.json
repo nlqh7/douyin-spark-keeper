@@ -12,7 +12,7 @@
   },
   "build": {
     "appId": "local.sparkkeeper.desktop",
-    "productName": "火花管家",
+    "productName": "火花",
     "files": ["src/**/*", "assets/**/*", "package.json"],
     "extraResources": [{"from": "../build/manage.exe", "to": "manage.exe"}],
     "win": {"target": "portable", "icon": "assets/icon.ico"},

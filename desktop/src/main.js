@@ -28,7 +28,7 @@ function createWindow() {
     minWidth: 900,
     minHeight: 760,
     backgroundColor: '#f4f4f2',
-    title: '火花管家',
+    title: '火花',
     autoHideMenuBar: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
