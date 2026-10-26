@@ -63,3 +63,20 @@ def test_webbridge_sends_configured_text_once_per_target(monkeypatch, tmp_path) 
     assert runner.send_text.call_count == 2
     runner.send_text.assert_called_with("🔥")
     assert history.mark_success.call_count == 2
+
+
+def test_detached_bridge_reconnects_and_retries(monkeypatch) -> None:
+    calls = []
+
+    def fake_post(action, args):
+        calls.append((action, args))
+        if len(calls) == 1:
+            return {"ok": False, "error": {"message": "Detached while handling command."}}
+        return {"ok": True, "data": {"success": True}}
+
+    monkeypatch.setattr(webbridge, "_post", fake_post)
+    monkeypatch.setattr(webbridge.time, "sleep", lambda _: None)
+
+    assert webbridge.command("evaluate", {"code": "1"})["success"] is True
+    assert calls[1][0] == "cdp"
+    assert calls[2][0] == "evaluate"

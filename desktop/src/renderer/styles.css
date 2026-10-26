@@ -47,9 +47,12 @@ h1 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.3px; }
 .account-label { margin-right: 8px; color: var(--muted); font-size: 10px; }
 .account-strip strong { font-size: 11px; font-weight: 600; }
 .account-strip #account-name { display: inline-block; max-width: 320px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; vertical-align: bottom; }
-.scan-summary { flex-shrink: 0; }
+.scan-summary { flex-shrink: 0; padding: 7px 11px; border: 1px solid #efc4aa; border-radius: 8px; background: #fff1e7; color: #b95a2b; }
+.scan-summary .account-label { color: #b95a2b; font-weight: 600; }
+.scan-summary strong { font-size: 14px; }
+#gray-count { font-size: 20px; font-weight: 700; }
 .gray-details { margin: 0 2px 14px; color: var(--muted); font-size: 10px; }
-.gray-details summary { min-height: 24px; cursor: pointer; }
+.gray-list-label { display: block; margin-bottom: 5px; color: #626d79; font-weight: 600; }
 .gray-names { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 0 2px; }
 .gray-names span { padding: 4px 7px; border: 1px solid var(--border); border-radius: 6px; background: var(--surface); }
 .overview-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 16px; }

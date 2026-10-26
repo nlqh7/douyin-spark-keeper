@@ -14,16 +14,29 @@ class WebBridgeError(RuntimeError):
     pass
 
 
-def command(action: str, args: dict | None = None) -> dict:
-    body = json.dumps({"action": action, "args": args or {}, "session": SESSION}, ensure_ascii=False).encode("utf-8")
+def _post(action: str, args: dict) -> dict:
+    body = json.dumps({"action": action, "args": args, "session": SESSION}, ensure_ascii=False).encode("utf-8")
     request = Request(BRIDGE_URL, data=body, headers={"Content-Type": "application/json"}, method="POST")
     try:
         with urlopen(request, timeout=45) as response:
-            payload = json.loads(response.read().decode("utf-8"))
+            return json.loads(response.read().decode("utf-8"))
     except Exception as exc:
         raise WebBridgeError("无法连接 Kimi WebBridge，请确认扩展和本机服务已开启") from exc
+
+
+def command(action: str, args: dict | None = None, _retries: int = 0) -> dict:
+    payload = _post(action, args or {})
     if not payload.get("ok"):
-        raise WebBridgeError(str(payload.get("error") or payload))
+        error = payload.get("error") or payload
+        message = str(error.get("message", error) if isinstance(error, dict) else error)
+        if "detached" in message.lower() and _retries < 2:
+            time.sleep(0.3)
+            try:
+                _post("cdp", {"method": "Page.bringToFront", "params": {}})
+            except WebBridgeError:
+                pass
+            return command(action, args, _retries + 1)
+        raise WebBridgeError(message)
     data = payload.get("data")
     return data if isinstance(data, dict) else {"value": data}
 

@@ -1,9 +1,22 @@
 const { app, BrowserWindow, ipcMain, Menu, Tray } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs/promises');
+const fsSync = require('node:fs');
 const { ProcessRunner } = require('./process-runner');
 
-const root = app.isPackaged ? (process.env.PORTABLE_EXECUTABLE_DIR || path.dirname(process.execPath)) : path.resolve(__dirname, '..', '..');
+const isUnpacked = process.resourcesPath.includes(`${path.sep}dist${path.sep}win-unpacked${path.sep}resources`);
+const root = app.isPackaged ? (process.env.PORTABLE_EXECUTABLE_DIR || (isUnpacked ? path.resolve(process.resourcesPath, '..', '..', '..', 'data') : path.dirname(process.execPath))) : path.resolve(__dirname, '..', '..');
+if (isUnpacked) {
+  const legacyData = path.resolve(process.resourcesPath, '..', 'data');
+  for (const name of ['control.json', 'account.json', 'scan-status.json']) {
+    const source = path.join(legacyData, name);
+    const destination = path.join(root, 'data', name);
+    if (fsSync.existsSync(source) && !fsSync.existsSync(destination)) {
+      fsSync.mkdirSync(path.dirname(destination), { recursive: true });
+      fsSync.copyFileSync(source, destination);
+    }
+  }
+}
 const smokeTest = process.argv.includes('--smoke-test');
 app.setPath('userData', path.join(root, 'data', smokeTest ? 'electron-smoke' : 'electron'));
 const runner = new ProcessRunner(root, undefined, { managePath: app.isPackaged ? path.join(process.resourcesPath, 'manage.exe') : null });
@@ -46,6 +59,12 @@ function createWindow() {
     },
   });
   window.loadFile(path.join(__dirname, 'renderer', 'index.html'));
+  window.on('close', (event) => {
+    if (!smokeTest) {
+      event.preventDefault();
+      window.hide();
+    }
+  });
   window.on('minimize', (event) => {
     event.preventDefault();
     window.hide();
@@ -116,10 +135,6 @@ app.on('before-quit', (event) => {
   if (!runner.watching) return;
   event.preventDefault();
   runner.stopWatch().finally(() => app.exit(0));
-});
-
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') app.quit();
 });
 
 if (process.argv.includes('--smoke-test')) {
