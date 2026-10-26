@@ -136,11 +136,12 @@ def open_target(name: str) -> None:
 
 def send_text(content: str) -> None:
     command("fill", {"selector": '[data-contents="true"]', "value": content})
-    clicked = evaluate(
-        "(() => { const button = document.querySelector('[class*=\"messageMsgInputpublishBtn\"], .e2e-send-msg-bt, button[aria-label*=\"发送\"]'); if (!button) return false; button.click(); return true; })()"
+    rect = evaluate(
+        "(() => { const button = document.querySelector('[class*=\"messageMsgInputpublishBtn\"], .e2e-send-msg-bt, button[aria-label*=\"发送\"]'); if (!button) return null; const bounds = button.getBoundingClientRect(); return {x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2}; })()"
     )
-    if not clicked:
+    if not rect:
         raise WebBridgeError("找不到发送按钮")
+    trusted_click(rect)
     time.sleep(2.5)
     encoded = json.dumps(content, ensure_ascii=False)
     confirmed = evaluate(
@@ -156,11 +157,12 @@ def send_text(content: str) -> None:
 
 
 def send_sticker(name: str) -> None:
-    clicked = evaluate(
-        "(() => { const button = document.querySelector('svg.messageMsgInputiconAction, button[aria-label*=\"表情\"], [role=\"button\"][aria-label*=\"表情\"]'); if (!button) return false; button.click(); return true; })()"
+    rect = evaluate(
+        "(() => { const button = document.querySelector('svg.messageMsgInputiconAction, button[aria-label*=\"表情\"], [role=\"button\"][aria-label*=\"表情\"]'); if (!button) return null; const bounds = button.getBoundingClientRect(); return {x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2}; })()"
     )
-    if not clicked:
+    if not rect:
         raise WebBridgeError("找不到表情按钮")
+    trusted_click(rect)
     time.sleep(0.8)
     encoded = json.dumps(name, ensure_ascii=False)
     selected = evaluate(
@@ -169,18 +171,25 @@ def send_sticker(name: str) -> None:
           for (const panel of panels) {{
             for (const node of panel.querySelectorAll('[aria-label], [title], img, .emojiEmojiItememojiItemDesc')) {{
               const label = node.getAttribute('aria-label') || node.getAttribute('title') || node.getAttribute('alt') || node.innerText;
-              if (label?.trim() === {encoded}) {{ (node.closest('[role="button"]') || node).click(); return true; }}
+              if (label?.trim() === {encoded}) {{
+                const target = node.closest('.emojiEmojiItememojiItem')?.querySelector('.emojiEmojiItemimgBox') || node.closest('[role="button"]') || node;
+                const bounds = target.getBoundingClientRect();
+                return {{x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2}};
+              }}
             }}
           }}
-          return false;
+          return null;
         }})()"""
     )
     if not selected:
         raise WebBridgeError(f"表情面板中找不到原生表情：{name}")
+    trusted_click(selected)
     time.sleep(1)
-    evaluate(
-        "(() => { const button = document.querySelector('[class*=\"messageMsgInputpublishBtn\"], .e2e-send-msg-bt'); if (button) button.click(); return true; })()"
+    publish = evaluate(
+        "(() => { const button = document.querySelector('[class*=\"messageMsgInputpublishBtn\"], .e2e-send-msg-bt'); if (!button) return null; const bounds = button.getBoundingClientRect(); return {x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2}; })()"
     )
+    if publish:
+        trusted_click(publish)
     time.sleep(2.5)
     confirmed = evaluate(
         "(() => { const latest = document.querySelector('.messageMessageListlist [data-index=\"0\"] .messageMessageBoxmessageBox:has(.messageMessageBoxcontentBox.messageMessageBoxisFromMe)'); return Boolean(latest && latest.querySelector('img') && !latest.querySelector('[aria-label*=\"重试\"], [class*=\"SendStatusretry\"]')); })()"
